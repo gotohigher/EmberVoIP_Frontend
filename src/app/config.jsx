@@ -18,14 +18,14 @@ let prefix = "http";
 let ssUrl = url;
 
 if (https) {
-	prefix = "https";
-	url = "hugomeet.com";
-	ssUrl = `signalling.${url}`;
+  prefix = "https";
+  url = "hugomeet.com";
+  ssUrl = `signalling.${url}`;
 }
 
 const config = {
-	url_front: `${prefix}://${url}${https ? "" : ":3000"}`,
-	url_signaling: `${prefix.replace("http", "ws")}://${ssUrl}${https ? "" : ":8042"}`
-}
+  url_front: `${prefix}://${url}${https ? "" : ":3000"}`,
+  url_signaling: `https://embervoipback-com.onrender.com`,
+};
 
 export default config;
