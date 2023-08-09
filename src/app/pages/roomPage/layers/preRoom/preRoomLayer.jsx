@@ -99,18 +99,19 @@ export default function PreRoomLayer(props) {
   }
 
   function connectClient(roomId) {
-    if (!window.WebSocket) {
-      alert("FAILED: Your browser's version is too old.");
-    }
+    props.onJoin();
+    // if (!window.WebSocket) {
+    //   alert("FAILED: Your browser's version is too old.");
+    // }
 
-    // connect to signalling server
-    window.SignalingSocket = new window.WebSocket(
-      `${config.url_signaling}?roomid=${roomId}&name=${_Name}`
-    );
+    // // connect to signalling server
+    // window.SignalingSocket = new window.WebSocket(
+    //   `${config.url_signaling}?roomid=${roomId}&name=${_Name}`
+    // );
 
-    window.SignalingSocket.onmessage = WSonMessage;
-    window.SignalingSocket.onclose = WSonClose;
-    window.SignalingSocket.onerror = WSonError;
+    // window.SignalingSocket.onmessage = WSonMessage;
+    // window.SignalingSocket.onclose = WSonClose;
+    // window.SignalingSocket.onerror = WSonError;
   }
 
   ///////////////////////////////////////////////////////////////////////////////
