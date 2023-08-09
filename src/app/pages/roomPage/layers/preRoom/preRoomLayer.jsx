@@ -34,9 +34,9 @@ export default function PreRoomLayer(props) {
   function participate() {
     set_Cookie("userName", _Name, { path: "/" });
     // Connect to the signalling server
-    // if (!window.SignalingSocket || window.SignalingSocket.readyState === 3) {
-    connectClient(roomId);
-    // }
+    if (!window.SignalingSocket || window.SignalingSocket.readyState === 3) {
+      connectClient(roomId);
+    }
     set_State("Connecting");
   }
 
@@ -99,19 +99,18 @@ export default function PreRoomLayer(props) {
   }
 
   function connectClient(roomId) {
-    props.onJoin();
-    // if (!window.WebSocket) {
-    //   alert("FAILED: Your browser's version is too old.");
-    // }
+    if (!window.WebSocket) {
+      alert("FAILED: Your browser's version is too old.");
+    }
 
-    // // connect to signalling server
-    // window.SignalingSocket = new window.WebSocket(
-    //   `${config.url_signaling}?roomid=${roomId}&name=${_Name}`
-    // );
+    // connect to signalling server
+    window.SignalingSocket = new window.WebSocket(
+      `${config.url_signaling}?roomid=${roomId}&name=${_Name}`
+    );
 
-    // window.SignalingSocket.onmessage = WSonMessage;
-    // window.SignalingSocket.onclose = WSonClose;
-    // window.SignalingSocket.onerror = WSonError;
+    window.SignalingSocket.onmessage = WSonMessage;
+    window.SignalingSocket.onclose = WSonClose;
+    window.SignalingSocket.onerror = WSonError;
   }
 
   ///////////////////////////////////////////////////////////////////////////////
@@ -217,13 +216,23 @@ export default function PreRoomLayer(props) {
               switch (_State) {
                 case "Connecting":
                   return (
-                    <div className="PRP-B-C-Connecting">
-                      <div className="PRP-B-C-C-Title">Connecting...</div>
-                      <div className="PRP-B-C-C-LoadingAnimation">
-                        <div></div>
-                        <div></div>
-                        <div></div>
-                        <div></div>
+                    <div className="PRP-B-Form">
+                      <div>
+                        <img
+                          className="Ember-Logo"
+                          src={EmberVOIP}
+                          alt="HugoMeet logo"
+                        />
+                        <span className="H-L-Ember">EmberVOIP</span>
+                      </div>
+                      <div className="PRP-B-C-Connecting">
+                        <div className="PRP-B-C-C-Title">Connecting...</div>
+                        <div className="PRP-B-C-C-LoadingAnimation">
+                          <div></div>
+                          <div></div>
+                          <div></div>
+                          <div></div>
+                        </div>
                       </div>
                     </div>
                   );
@@ -268,30 +277,53 @@ export default function PreRoomLayer(props) {
                   );
                 case "Pending":
                   return (
-                    <div className="PRP-B-C-Form">
-                      <div className="PRP-B-C-F-Title">
-                        Waiting for approval...
+                    <div className="PRP-B-Form">
+                      <div>
+                        <img
+                          className="Ember-Logo"
+                          src={EmberVOIP}
+                          alt="HugoMeet logo"
+                        />
+                        <span className="H-L-Ember">EmberVOIP</span>
                       </div>
-                      <div className="PRP-B-C-C-LoadingAnimation">
-                        <div></div>
-                        <div></div>
-                        <div></div>
-                        <div></div>
+                      <div className="PRP-B-C-Form">
+                        <div className="PRP-B-C-F-Title">
+                          Waiting for approval...
+                        </div>
+                        <div className="PRP-B-C-C-LoadingAnimation">
+                          <div></div>
+                          <div></div>
+                          <div></div>
+                          <div></div>
+                        </div>
                       </div>
                     </div>
                   );
                 default:
                   return (
-                    <div className="PRP-B-C-Form">
-                      <div className="PRP-B-C-F-Title" style={{ color: "red" }}>
-                        {_State}
+                    <div className="PRP-B-Form">
+                      <div>
+                        <img
+                          className="Ember-Logo"
+                          src={EmberVOIP}
+                          alt="HugoMeet logo"
+                        />
+                        <span className="H-L-Ember">EmberVOIP</span>
                       </div>
-                      <div
-                        className="PRP-B-C-F-SubmitButtons"
-                        onClick={participate}
-                      >
-                        <div className="PRP-B-C-F-SB-Participate">
-                          <span className="PRP-B-C-F-SB-P-Value">retry</span>
+                      <div className="PRP-B-C-Form">
+                        <div
+                          className="PRP-B-C-F-Title"
+                          style={{ color: "red" }}
+                        >
+                          {_State}
+                        </div>
+                        <div
+                          className="PRP-B-C-F-SubmitButtons"
+                          onClick={participate}
+                        >
+                          <div className="PRP-B-C-F-SB-Participate">
+                            <span className="PRP-B-C-F-SB-P-Value">retry</span>
+                          </div>
                         </div>
                       </div>
                     </div>

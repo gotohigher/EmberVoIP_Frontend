@@ -10,17 +10,17 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-const https = false;
+const https = true;
 
-let url = "embervoipback-com.onrender.com";
+let url = "localhost";
 
 let prefix = "http";
 let ssUrl = url;
 
 if (https) {
   prefix = "https";
-  url = "hugomeet.com";
-  ssUrl = `signalling.${url}`;
+  url = "embervoipback-com.onrender.com";
+  ssUrl = `${url}`;
 }
 
 const config = {
