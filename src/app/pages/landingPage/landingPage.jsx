@@ -225,9 +225,9 @@ export default function LandingPage() {
               >
                 Learn more
               </a>{" "}
-              about HugoMeet
+              about EmberVOIP
             </span>
-            <span className="LP-MI-Span">contact@hugomeet.com</span>
+            <span className="LP-MI-Span">kaylon@embervoip.com</span>
           </div>
         </div>
       </div>

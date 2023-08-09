@@ -69,7 +69,7 @@ export default function Header() {
   return (
     <header className="Header">
       <div className="H-Logo" onClick={goToTheLandingPage}>
-        <img className="H-L-Logo" src={EmberVOIP} alt="HugoMeet logo" />
+        <img className="H-L-Logo" src={EmberVOIP} alt="EmberVOIP logo" />
         <span className="H-L-Ember">EmberVOIP</span>
       </div>
       {/* <div className="H-Date">
