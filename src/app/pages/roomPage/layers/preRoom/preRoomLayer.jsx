@@ -20,7 +20,7 @@ import config from "../../../../config";
 import Header from "../../../header/Header";
 
 export default function PreRoomLayer(props) {
-  const [_Cookie, set_Cookie] = useCookies(["HugoMeet"]);
+  const [_Cookie, set_Cookie] = useCookies(["EmberVOIP"]);
   const [_Name, set_Name] = useState(
     !_Cookie.userName || _Cookie.userName === "undefined"
       ? ""
@@ -117,7 +117,7 @@ export default function PreRoomLayer(props) {
   //	UseEffect
 
   useEffect(() => {
-    // Ask to allow notification from HugoMeet
+    // Ask to allow notification from EmberVOIP
     if (window.Notification) {
       Notification.requestPermission().catch(() =>
         Notification.requestPermission()
@@ -221,7 +221,7 @@ export default function PreRoomLayer(props) {
                         <img
                           className="Ember-Logo"
                           src={EmberVOIP}
-                          alt="HugoMeet logo"
+                          alt="EmberVOIP logo"
                         />
                         <span className="H-L-Ember">EmberVOIP</span>
                       </div>
@@ -243,7 +243,7 @@ export default function PreRoomLayer(props) {
                         <img
                           className="Ember-Logo"
                           src={EmberVOIP}
-                          alt="HugoMeet logo"
+                          alt="EmberVOIP logo"
                         />
                         <span className="H-L-Ember">EmberVOIP</span>
                       </div>
@@ -282,7 +282,7 @@ export default function PreRoomLayer(props) {
                         <img
                           className="Ember-Logo"
                           src={EmberVOIP}
-                          alt="HugoMeet logo"
+                          alt="EmberVOIP logo"
                         />
                         <span className="H-L-Ember">EmberVOIP</span>
                       </div>
@@ -306,7 +306,7 @@ export default function PreRoomLayer(props) {
                         <img
                           className="Ember-Logo"
                           src={EmberVOIP}
-                          alt="HugoMeet logo"
+                          alt="EmberVOIP logo"
                         />
                         <span className="H-L-Ember">EmberVOIP</span>
                       </div>
