@@ -11,70 +11,94 @@
 /* ************************************************************************** */
 
 .RL-VC-Peer {
-	position: relative;
-	box-sizing: border-box;
-	background: #3c4043;
-	border-radius: 10px;
-	justify-self: center;
-	align-self: center;
-	width: 100%;
-	height: 100%;
-	display: flex;
-	flex-direction: column;
+  position: relative;
+  box-sizing: border-box;
+  background: #3c4043;
+  border-radius: 10px;
+  justify-self: center;
+  align-self: center;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .RL-VC-P-Video {
-	position: absolute;
-	width: 100%;
-	height: 100%;
-	object-fit: cover;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .RL-VC-P-Video-Mirrored {
-	position: absolute;
-	width: 100%;
-	height: 100%;
-	object-fit: cover;
-	transform: rotateY(180deg);
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: rotateY(180deg);
 }
 
 .RL-VC-P-Name {
-	position: absolute;
-	width: 100%;
-	text-align: center;
-	font-weight: bold;
-	font-size: 2.5vh;
-	color: coral;
+  position: absolute;
+  width: 100%;
+  text-align: center;
+  font-weight: bold;
+  font-size: 2.5vh;
+  color: coral;
 }
 
 .RL-VC-P-NameOverlay {
-	position: absolute;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	width: 100%;
-	height: 100%;
-	text-align: center;
-	font-weight: bold;
-	font-size: 5vw;
-	color: coral;
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  font-weight: bold;
+  font-size: 5vw;
+  color: coral;
 }
 
 .RL-VC-P-AudioStatus {
-	position: absolute;
-	left: 0;
-	bottom: 0;
-	background-color: rgba(32,33,36,0.302);
-	border-radius: 50%;
-	align-items: center;
-	display: flex;
-	justify-content: center;
-	margin: 5px;
-	padding: 5px;
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  background-color: rgba(32, 33, 36, 0.302);
+  border-radius: 50%;
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  margin: 5px;
+  padding: 5px;
 }
 
 .RL-VC-P-AudioStatus > svg {
-	height: 18px;
-	width: 18px;
-	fill: white;
+  height: 18px;
+  width: 18px;
+  fill: white;
+}
+
+.Hand-up {
+  position: absolute;
+  left: 0;
+  bottom: 32px;
+  background-color: rgb(255, 255, 255);
+  -webkit-text-fill-color: black;
+  transition-property: width;
+  transition-duration: 2s;
+  transition-timing-function: linear;
+  transition-delay: 1s;
+  border-radius: 50%;
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  margin: 5px;
+  padding: 5px;
+}
+
+.Hand-up > svg {
+  height: 18px;
+  width: 18px;
+  fill: black;
 }

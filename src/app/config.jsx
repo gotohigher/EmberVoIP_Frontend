@@ -19,14 +19,14 @@ let ssUrl = url;
 
 if (https) {
   prefix = "https";
-  url = "west01.embervoip.net";
+  url = "embervoipback-com.onrender.com";
   ssUrl = `${url}`;
 }
 
 const config = {
   url_front: `${prefix}://${url}${https ? "" : ":3000"}`,
   url_signaling: `${prefix.replace("http", "ws")}://${ssUrl}${
-    https ? ":8089/ws" : ":8042"
+    https ? "" : ":8042"
   }`,
 };
 
