@@ -58,15 +58,23 @@ export default function RoomLayer(props) {
         sampleRate: 44100,
       },
     });
-    stream.getVideoTracks()[0].addEventListener("ended", () => {
-      stopShareScreen();
-    });
+    // stream.getVideoTracks()[0].addEventListener("ended", () => {
+    //   stopShareScreen();
+    // });
     setScreenFlag(true);
     setShareStream(stream);
     let video = document.getElementById("shareScreen");
     video.srcObject = stream;
     video.play();
   }
+
+  useEffect(() => {
+    if (shareStream) {
+      shareStream.getVideoTracks()[0].addEventListener("ended", () => {
+        stopShareScreen();
+      });
+    }
+  }, [shareStream]);
 
   function onHandup() {
     setHandupFlag(!handupFlag);
