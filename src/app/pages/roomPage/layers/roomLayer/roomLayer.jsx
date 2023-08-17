@@ -10,13 +10,14 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useReducer } from "react";
 import { useHistory, useParams } from "react-router-dom";
 
 import Utils from "../../../../utils/utils";
 import HangUpIcon from "./assets/HandUpIcon.png";
 import NotificationIcon from "./assets/HugoMeetLogo-256x256.png";
 import Messenger from "./components/Messenger/Messenger";
+import MessageListReducer from "../../../../reducer/MessengerListReducer";
 
 // Components
 import PeerVideo from "./components/peerVideo/peerVideo";
@@ -33,7 +34,11 @@ export default function RoomLayer(props) {
   const [shareStream, setShareStream] = useState("");
   const [isMessenger, setIsMessenger] = useState(false);
   const [handupFlag, setHandupFlag] = useState(false);
-  const messageList = [];
+  const initialState = [];
+  const [messageList, messengerListReducer] = useReducer(
+    MessageListReducer,
+    initialState
+  );
 
   const history = useHistory();
   const { roomId } = useParams();
@@ -58,6 +63,9 @@ export default function RoomLayer(props) {
     });
     setScreenFlag(true);
     setShareStream(stream);
+    let video = document.getElementById("shareScreen");
+    video.srcObject = stream;
+    video.play();
   }
 
   function onHandup() {
@@ -79,12 +87,22 @@ export default function RoomLayer(props) {
   }
 
   function sendMsg(msg) {
-    let data = {
-      user: "you",
-      msg: msg,
-      time: Date.now(),
-    };
-    messageList.push(data);
+    messengerListReducer({
+      type: "addMessage",
+      payload: {
+        user: "you",
+        msg: msg,
+        time: Date.now(),
+      },
+    });
+    // window.SignalingSocket.send(
+    //   JSON.stringify({
+    //     type: "sendMsg",
+    //     to: "all",
+    //     msg: msg,
+    //     sender: props.selfName,
+    //   })
+    // );
   }
 
   function handUpCall() {
@@ -633,41 +651,51 @@ export default function RoomLayer(props) {
           />
         ))}
         {/* VIDEOS */}
-        <div
-          className="RL-VideoContainer"
-          style={{
-            gridTemplateColumns: `${"auto ".repeat(
-              numberOfColumns[_Peers.length]
-            )}`,
-          }}
-        >
-          {_Peers.map((peer, index) =>
-            props.selfId && peer._id === props.selfId ? (
-              <PeerVideo
-                key={index}
-                index={index}
-                id="LocalStream"
-                stream={window.localStream}
-                name={peer.name}
-                audio={props.audio}
-                video={props.video}
-                handupFlag={handupFlag}
-                muted
-                mirrored
-              />
-            ) : (
-              <PeerVideo
-                key={index}
-                index={index}
-                id={`VideoStream_${peer._id}`}
-                stream={PeersConnection.get(peer._id)?.stream}
-                name={peer.name}
-                audio={peer.audio}
-                video={peer.video}
-                handupFlag={handupFlag}
-              />
-            )
+        <div className="video-container">
+          {screenFlag ? (
+            <video className="screen-share-container" id="shareScreen" />
+          ) : (
+            ""
           )}
+          <div
+            className="RL-VideoContainer"
+            style={{
+              gridTemplateColumns: `${"auto ".repeat(
+                numberOfColumns[_Peers.length]
+              )}`,
+            }}
+          >
+            {_Peers.map((peer, index) =>
+              props.selfId && peer._id === props.selfId ? (
+                <PeerVideo
+                  key={index}
+                  index={index}
+                  id="LocalStream"
+                  stream={window.localStream}
+                  name={peer.name}
+                  audio={props.audio}
+                  video={props.video}
+                  selfName={props.selfName}
+                  handupFlag={handupFlag}
+                  muted
+                  mirrored
+                >
+                  <video />
+                </PeerVideo>
+              ) : (
+                <PeerVideo
+                  key={index}
+                  index={index}
+                  id={`VideoStream_${peer._id}`}
+                  stream={PeersConnection.get(peer._id)?.stream}
+                  name={peer.name}
+                  audio={peer.audio}
+                  video={peer.video}
+                  handupFlag={handupFlag}
+                />
+              )
+            )}
+          </div>
         </div>
 
         {/* BUTTONS UNDER VIDEOS */}
@@ -810,7 +838,7 @@ export default function RoomLayer(props) {
           <div className="RL-TB-Right">{/* Nothing Yet */}</div>
         </div>
       </div>
-      <div className="messenger-container">
+      <div className="messege-container">
         {isMessenger ? (
           <Messenger
             setIsMessenger={setIsMessenger}

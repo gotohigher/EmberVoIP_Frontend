@@ -65,6 +65,7 @@ const Messenger = ({ setIsMessenger, sendMsg, messageList }) => {
       <div className="send-msg-section">
         <input
           placeholder="Send a message to everyone"
+          className="input-msg"
           value={msg}
           onChange={(e) => handleChangeMsg(e)}
           onKeyDown={(e) => handleKeyDown(e)}

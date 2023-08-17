@@ -27,6 +27,7 @@ export default function RoomPage() {
   const [_HasJoin, set_HasJoin] = useState(false);
   const [_SelfId, set_SelfId] = useState("");
   const [_RtcOptions, set_RtcOptions] = useState("");
+  const [selfName, setSelfName] = useState("");
 
   const history = useHistory();
   const { roomId } = useParams();
@@ -167,6 +168,7 @@ export default function RoomPage() {
           audio={_Audio}
           video={_Video}
           selfId={_SelfId}
+          setSelfName={setSelfName}
         />
       ) : (
         <RoomLayer
@@ -176,6 +178,7 @@ export default function RoomPage() {
           video={_Video}
           selfId={_SelfId}
           rtcOptions={_RtcOptions}
+          selfName={selfName}
         />
       )}
     </div>

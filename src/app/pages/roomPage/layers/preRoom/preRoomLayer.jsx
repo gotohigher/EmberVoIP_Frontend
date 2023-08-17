@@ -34,6 +34,7 @@ export default function PreRoomLayer(props) {
   function participate() {
     set_Cookie("userName", _Name, { path: "/" });
     // Connect to the signalling server
+    props.setSelfName(_Name);
     if (!window.SignalingSocket || window.SignalingSocket.readyState === 3) {
       connectClient(roomId);
     }

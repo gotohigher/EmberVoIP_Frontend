@@ -46,7 +46,7 @@ export default function PeerVideo(props) {
       ) : (
         <div className="RL-VC-P-NameOverlay">{props.name}</div>
       )}
-      {props.handupFlag ? (
+      {props.handupFlag && props.name === props.selfName ? (
         <div className="Hand-up">
           <svg
             className="svg-icon"
