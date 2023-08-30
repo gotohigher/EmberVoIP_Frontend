@@ -76,8 +76,16 @@ export default function RoomLayer(props) {
     }
   }, [shareStream]);
 
-  function onHandup() {
+  function toggleHandup() {
     setHandupFlag(!handupFlag);
+    console.log(handupFlag);
+    sendMessageToEveryoneInTheRoom(
+      JSON.stringify({
+        type: "handUpStateChange",
+        _id: props.selfId,
+        handUp: !handupFlag,
+      })
+    );
   }
 
   function stopShareScreen() {
@@ -103,14 +111,13 @@ export default function RoomLayer(props) {
         time: Date.now(),
       },
     });
-    // window.SignalingSocket.send(
-    //   JSON.stringify({
-    //     type: "sendMsg",
-    //     to: "all",
-    //     msg: msg,
-    //     sender: props.selfName,
-    //   })
-    // );
+    sendMessageToEveryoneInTheRoom(
+      JSON.stringify({
+        type: "sendMessage",
+        _id: props.selfId,
+        msg: msg,
+      })
+    );
   }
 
   function handUpCall() {
@@ -185,12 +192,20 @@ export default function RoomLayer(props) {
         video: props.video,
       })
     );
+    dc.send(
+      JSON.stringify({
+        type: "handUpStateChange",
+        _id: props.selfId,
+        handUp: handupFlag,
+      })
+    );
   }
 
   function DConMessage(peerId, msg) {
     // Parse JSON msg
     try {
       msg = JSON.parse(msg.data);
+      console.log(msg);
     } catch (err) {
       console.error(`DC_${peerId}:\tError: ${err}`);
       return;
@@ -208,11 +223,18 @@ export default function RoomLayer(props) {
       // Update Audio status
       const peers = [..._Peers];
       peers[peerIndex].audio = msg.audio;
+      console.log(peers);
       set_Peers(peers);
     } else if (msg.type === "videoStateChange") {
       // Update Video status
       const peers = [..._Peers];
       peers[peerIndex].video = msg.video;
+      set_Peers(peers);
+    } else if (msg.type === "handUpStateChange") {
+      console.log(msg.handUp);
+      const peers = [..._Peers];
+      peers[peerIndex].handUp = msg.handUp;
+      console.log(peers);
       set_Peers(peers);
     }
   }
@@ -575,6 +597,18 @@ export default function RoomLayer(props) {
         ..._PendingInvitation,
         { name: msg.name, _id: msg.from },
       ]);
+    } else if (msg.type === "sendMsg") {
+      console.log("msg", msg);
+      if (props.selfId !== msg.from) {
+        messengerListReducer({
+          type: "addMessage",
+          payload: {
+            user: msg.sender,
+            msg: msg.msg,
+            time: Date.now(),
+          },
+        });
+      }
     } else if (Utils.rtc.isRTCMessage(msg.type)) {
       // msg.type === Offer | Answer | IceCandidate
       RTCMessageDispatcher(msg);
@@ -684,7 +718,7 @@ export default function RoomLayer(props) {
                   audio={props.audio}
                   video={props.video}
                   selfName={props.selfName}
-                  handupFlag={handupFlag}
+                  handUp={handupFlag}
                   muted
                   mirrored
                 >
@@ -699,7 +733,7 @@ export default function RoomLayer(props) {
                   name={peer.name}
                   audio={peer.audio}
                   video={peer.video}
-                  handupFlag={handupFlag}
+                  handUp={peer.handUp}
                 />
               )
             )}
@@ -774,7 +808,7 @@ export default function RoomLayer(props) {
                 </svg>
               )}
             </div>
-            <div className="icon-block" onClick={onHandup}>
+            <div className="icon-block" onClick={toggleHandup}>
               <svg
                 className="svg-icon"
                 focusable="false"
