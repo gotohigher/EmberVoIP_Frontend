@@ -20,13 +20,13 @@ export default function PeerVideo(props) {
   //	Render
 
   useEffect(() => {
-    console.log(`PeerVideo_${props.index}:\tUseEffect`);
+    // console.log(`PeerVideo_${props.index}:\tUseEffect`);
     if (videoElement && videoElement.current) {
       videoElement.current.srcObject = props.stream;
     }
   }, [props.name]);
 
-  console.log(`PeerVideo_${props.index}:\tRefresh`);
+  // console.log(`PeerVideo_${props.index}:\tRefresh`);
   return (
     <div id={`RL-VC-Video-${props.index}`} className="RL-VC-Peer">
       <video
@@ -37,8 +37,8 @@ export default function PeerVideo(props) {
         muted={props.muted}
         onLoadedMetadata={(e) => e.target.play()}
         style={{ display: props.video ? "block" : "none" }}
-        webkit-playsinline
         playsInline
+        // webkit-playsinline
         loop
       />
       {props.video ? (
@@ -65,7 +65,7 @@ export default function PeerVideo(props) {
             c0-0.28,0.22-0.5,0.5-0.5S16,3.72,16,4v8h2V7c0-0.28,0.22-0.5,0.5-0.5S19,6.72,19,7L19,16z"
             />
           </svg>
-          {props.name}
+          <div style={{ paddingLeft: "4px" }}>{props.name}</div>
         </div>
       ) : (
         ""

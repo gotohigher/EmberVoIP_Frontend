@@ -27,10 +27,10 @@ const Messenger = ({ setIsMessenger, sendMsg, messageList }) => {
     }
   };
 
-  const handleSendMsg = () => {
-    sendMsg(msg);
-    setMsg("");
-  };
+  // const handleSendMsg = () => {
+  //   sendMsg(msg);
+  //   setMsg("");
+  // };
 
   return (
     <div className="messenger-container">

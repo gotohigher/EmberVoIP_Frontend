@@ -38,33 +38,33 @@ export default function Header() {
     }, 60000 - _Date.getSeconds() * 1000 + _Date.getMilliseconds());
   }, [false]);
 
-  function getHours(date) {
-    const minutes = date.getMinutes();
-    return `${date.getHours()}:${minutes < 10 ? "0" : ""}${minutes}`;
-  }
-  let hours = getHours(_Date);
+  // function getHours(date) {
+  //   const minutes = date.getMinutes();
+  //   return `${date.getHours()}:${minutes < 10 ? "0" : ""}${minutes}`;
+  // }
+  // let hours = getHours(_Date);
 
-  function getDate(date) {
-    const dayLetter = ["Sun", "Mon", "Thu", "Wed", "Thu", "Fri", "Sat"];
-    const monthLetter = [
-      "Jan",
-      "Feb",
-      "Mar",
-      "Apr",
-      "May",
-      "Jun",
-      "Jul",
-      "Aug",
-      "Sep",
-      "Oct",
-      "Nov",
-      "Dec",
-    ];
-    return `${dayLetter[date.getDay()]}, ${date.getDate()} ${
-      monthLetter[date.getMonth()]
-    }`;
-  }
-  let date = getDate(_Date);
+  // function getDate(date) {
+  //   const dayLetter = ["Sun", "Mon", "Thu", "Wed", "Thu", "Fri", "Sat"];
+  //   const monthLetter = [
+  //     "Jan",
+  //     "Feb",
+  //     "Mar",
+  //     "Apr",
+  //     "May",
+  //     "Jun",
+  //     "Jul",
+  //     "Aug",
+  //     "Sep",
+  //     "Oct",
+  //     "Nov",
+  //     "Dec",
+  //   ];
+  //   return `${dayLetter[date.getDay()]}, ${date.getDate()} ${
+  //     monthLetter[date.getMonth()]
+  //   }`;
+  // }
+  // let date = getDate(_Date);
 
   return (
     <header className="Header">

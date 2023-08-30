@@ -43,7 +43,7 @@
   width: 100%;
   text-align: center;
   font-weight: bold;
-  font-size: 2.5vh;
+  font-size: 1vh;
   color: coral;
 }
 
@@ -56,7 +56,7 @@
   height: 100%;
   text-align: center;
   font-weight: bold;
-  font-size: 5vw;
+  font-size: 4vw;
   color: coral;
 }
 
@@ -89,16 +89,18 @@
   transition-duration: 2s;
   transition-timing-function: linear;
   transition-delay: 1s;
-  border-radius: 50%;
+  border-radius: 70%;
   align-items: center;
   display: flex;
   justify-content: center;
   margin: 5px;
-  padding: 5px;
+  padding: 8px;
 }
 
 .Hand-up > svg {
   height: 18px;
   width: 18px;
   fill: black;
+  padding: 4px;
+  padding-right: 2px;
 }

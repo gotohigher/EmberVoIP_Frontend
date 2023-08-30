@@ -60,7 +60,7 @@ export default function PreRoomLayer(props) {
       console.error(`Cannot parse message: ${msg.data}\nError: ${err}`);
       return;
     }
-    console.log(msg);
+    // console.log(msg);
 
     if (msg.type === "ConnectionCallback") {
       props.onConnectionCallback(msg);
@@ -78,16 +78,16 @@ export default function PreRoomLayer(props) {
 
   function WSonClose(event) {
     if (event.code === 4005) {
-      console.log(
-        `The owner of the room ${roomId} denied your joining request`
-      );
+      // console.log(
+      //   `The owner of the room ${roomId} denied your joining request`
+      // );
       set_State("Rejected");
     } else if (event.code === 1006) {
       set_State("Connection Error");
     } else {
-      console.log(
-        `WS close: ${event.code}${event.reason && ` - ${event.reason}`}`
-      );
+      // console.log(
+      //   `WS close: ${event.code}${event.reason && ` - ${event.reason}`}`
+      // );
       if (window.location.pathname !== "/") {
         history.push("/");
       }
@@ -95,7 +95,7 @@ export default function PreRoomLayer(props) {
   }
 
   function WSonError(event) {
-    console.log(`WS error:`, event);
+    // console.log(`WS error:`, event);
     window.SignalingSocket.close();
   }
 
@@ -128,7 +128,7 @@ export default function PreRoomLayer(props) {
     }
   }, [false]);
 
-  console.log("PreRoomLayer:\tRefresh");
+  // console.log("PreRoomLayer:\tRefresh");
   return (
     <div className="PreRoomPage">
       <Header />
@@ -144,8 +144,8 @@ export default function PreRoomLayer(props) {
                       className="PRP-B-C-S-VS-V-I-SV-Video"
                       autoPlay
                       muted
-                      webkit-playsinline
                       playsInline
+                      // webkit-playsinline
                       loop
                     />
                   </div>

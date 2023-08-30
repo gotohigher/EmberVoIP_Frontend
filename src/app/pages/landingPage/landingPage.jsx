@@ -138,10 +138,7 @@ export default function LandingPage() {
           <div className="LP-B-TAB-HR"></div>
           <div className="LP-B-TAB-MoreInfos">
             <span className="LP-MI-Span">
-              <a className="LP-MI-S-Href" href="">
-                Learn more
-              </a>{" "}
-              about EmberVOIP
+              <a className="LP-MI-S-Href">Learn more</a> about EmberVOIP
             </span>
             <span className="LP-MI-Span">kaylon@embervoip.com</span>
           </div>
