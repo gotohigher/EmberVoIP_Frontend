@@ -39,6 +39,7 @@ export default function RoomLayer(props) {
     MessageListReducer,
     initialState
   );
+  const [message, setMessage] = useState("");
 
   const history = useHistory();
   const { roomId } = useParams();
@@ -111,11 +112,12 @@ export default function RoomLayer(props) {
         time: Date.now(),
       },
     });
+    setMessage(msg);
     sendMessageToEveryoneInTheRoom(
       JSON.stringify({
         type: "sendMessage",
         _id: props.selfId,
-        msg: msg,
+        data: { message: msg, user: props.selfName },
       })
     );
   }
@@ -199,6 +201,13 @@ export default function RoomLayer(props) {
         handUp: handupFlag,
       })
     );
+    dc.send(
+      JSON.stringify({
+        type: "sendMessage",
+        _id: props.selfId,
+        data: { message: message, user: props.selfName },
+      })
+    );
   }
 
   function DConMessage(peerId, msg) {
@@ -236,6 +245,16 @@ export default function RoomLayer(props) {
       peers[peerIndex].handUp = msg.handUp;
       console.log(peers);
       set_Peers(peers);
+    } else if (msg.type === "sendMessage") {
+      console.log(msg);
+      messengerListReducer({
+        type: "addMessage",
+        payload: {
+          user: msg.data.user,
+          msg: msg.data.message,
+          time: Date.now(),
+        },
+      });
     }
   }
 

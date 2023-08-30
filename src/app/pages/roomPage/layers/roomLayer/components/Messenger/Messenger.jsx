@@ -21,6 +21,7 @@ const Messenger = ({ setIsMessenger, sendMsg, messageList }) => {
 
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
+      if (!msg) return;
       sendMsg(msg);
       setMsg("");
     }
