@@ -64,20 +64,23 @@ export default function RoomLayer(props) {
     //   stopShareScreen();
     // });
     const stream = await props.onChangeScreenStatus(!props.screen);
-    if (!props.screen) {
-      PeersConnection.forEach((peerConnection) => {
-        sendStreamsToPeers(peerConnection.PC, stream);
-      });
+    if (stream) {
+      if (!props.screen) {
+        PeersConnection.forEach((peerConnection) => {
+          sendStreamsToPeers(peerConnection.PC, stream);
+        });
+      }
+      setScreenFlag(true);
+      setReceiveFlag(false);
+      setShareStream(stream);
+      sendMessageToEveryoneInTheRoom(
+        JSON.stringify({
+          type: "screenStateChange",
+          _id: props.selfId,
+          screen: false,
+        })
+      );
     }
-    setScreenFlag(true);
-    setShareStream(stream);
-    sendMessageToEveryoneInTheRoom(
-      JSON.stringify({
-        type: "screenStateChange",
-        _id: props.selfId,
-        screen: false,
-      })
-    );
     // let video = document.getElementById("shareScreen");
     // video.srcObject = stream;
     // video.play();
@@ -385,7 +388,8 @@ export default function RoomLayer(props) {
     console.log("event stream", event.streams);
     const video = document.getElementById(`VideoStream_${peerId}`);
     const screen = document.getElementById("shareScreen");
-    if (screen) {
+    console.log("flag", screenFlag, receiveFlag);
+    if (screen && (screenFlag || !receiveFlag)) {
       screen.srcObject = event.streams[0];
     }
     if (video) {
