@@ -75,7 +75,7 @@ export default function RoomLayer(props) {
       JSON.stringify({
         type: "screenStateChange",
         _id: props.selfId,
-        screen: !props.screen,
+        screen: false,
       })
     );
     // let video = document.getElementById("shareScreen");
@@ -108,11 +108,18 @@ export default function RoomLayer(props) {
 
   function stopShareScreen() {
     let stream = shareStream;
-    if (stream.getTracks().length) {
+    if (stream?.getTracks().length) {
       stream.getTracks().forEach((track) => track.stop());
     } else {
       setShareStream("");
     }
+    sendMessageToEveryoneInTheRoom(
+      JSON.stringify({
+        type: "screenStateChange",
+        _id: props.selfId,
+        screen: true,
+      })
+    );
     setScreenFlag(false);
   }
 
@@ -190,11 +197,15 @@ export default function RoomLayer(props) {
     );
   }
 
-  function chooseStream(_id) {
+  function chooseStream(_id, status) {
     _Peers.forEach((peer) => {
       if (peer._id === _id) {
+        console.log("stream peer", peer);
         setShareStream(peer.stream);
-        setReceiveFlag(true);
+        setReceiveFlag(!status);
+        if (!status) {
+          setScreenFlag(false);
+        }
       }
     });
   }
@@ -289,7 +300,9 @@ export default function RoomLayer(props) {
         },
       });
     } else if (msg.type === "screenStateChange") {
-      chooseStream(msg._id);
+      const peers = [..._Peers];
+      peers[peerIndex].screen = msg.screen;
+      chooseStream(msg._id, msg.screen);
     }
   }
 
@@ -372,11 +385,12 @@ export default function RoomLayer(props) {
     console.log("event stream", event.streams);
     const video = document.getElementById(`VideoStream_${peerId}`);
     const screen = document.getElementById("shareScreen");
+    if (screen) {
+      screen.srcObject = event.streams[0];
+    }
     if (video) {
       console.log("camera");
       video.srcObject = event.streams[0];
-    } else if (screen) {
-      screen.srcObject = event.streams[0];
     } else {
       console.error(
         "WebRTC:\tStream received was not able to be apply to the peer video"

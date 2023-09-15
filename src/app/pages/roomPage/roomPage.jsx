@@ -113,7 +113,7 @@ export default function RoomPage() {
             sampleRate: 44100,
           },
         });
-        streamResult = Utils.media.combineStream(streamResult, stream);
+        streamResult = stream;
       } catch (e) {
         set_Screen(false);
       }
