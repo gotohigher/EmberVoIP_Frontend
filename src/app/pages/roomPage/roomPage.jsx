@@ -24,6 +24,7 @@ import Utils from "../../utils/utils";
 export default function RoomPage() {
   const [_Audio, set_Audio] = useState(true);
   const [_Video, set_Video] = useState(true);
+  const [_Screen, set_Screen] = useState(false);
   const [_HasJoin, set_HasJoin] = useState(false);
   const [_SelfId, set_SelfId] = useState("");
   const [_RtcOptions, set_RtcOptions] = useState("");
@@ -40,11 +41,11 @@ export default function RoomPage() {
   ///////////////////////////////////////////////////////////////////////////////
   //	Media audio/video
 
-  async function InitStreams(audio, video) {
+  async function InitStreams(audio, video, screen) {
     console.log("Initstream with: ", audio, video);
 
     // You cant user `getUserMedia` with all constraints to false
-    if (audio === false && video === false) {
+    if (audio === false && video === false && screen === false) {
       Utils.media.killTracks(
         window.localStream?.getTracks(),
         window.localStream
@@ -100,6 +101,23 @@ export default function RoomPage() {
           Utils.media.catchError(e);
         });
     }
+    if (screen) {
+      try {
+        const stream = await navigator.mediaDevices.getDisplayMedia({
+          video: {
+            cursor: "always",
+          },
+          audio: {
+            echoCancellation: true,
+            noiseSuppression: true,
+            sampleRate: 44100,
+          },
+        });
+        streamResult = Utils.media.combineStream(streamResult, stream);
+      } catch (e) {
+        set_Screen(false);
+      }
+    }
     window.localStream = streamResult;
     return streamResult; // return a stream with all the active tracks
   }
@@ -117,7 +135,7 @@ export default function RoomPage() {
       return undefined;
     }
     // Init new audio tracks
-    return await InitStreams(true, false);
+    return await InitStreams(true, false, false);
   }
 
   async function onChangeVideoStatus(video) {
@@ -132,7 +150,16 @@ export default function RoomPage() {
       return undefined;
     }
     // init new video track
-    return await InitStreams(false, true);
+    return await InitStreams(false, true, false);
+  }
+
+  async function onChangeScreenStatus(screen) {
+    set_Screen(screen);
+    if (screen === false) {
+      return undefined;
+    }
+
+    return await InitStreams(false, false, true);
   }
 
   ///////////////////////////////////////////////////////////////////////////////
@@ -174,8 +201,10 @@ export default function RoomPage() {
         <RoomLayer
           onChangeAudioStatus={onChangeAudioStatus}
           onChangeVideoStatus={onChangeVideoStatus}
+          onChangeScreenStatus={onChangeScreenStatus}
           audio={_Audio}
           video={_Video}
+          screen={_Screen}
           selfId={_SelfId}
           rtcOptions={_RtcOptions}
           selfName={selfName}

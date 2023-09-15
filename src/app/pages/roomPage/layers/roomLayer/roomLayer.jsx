@@ -31,6 +31,7 @@ export default function RoomLayer(props) {
   const [_Peers, set_Peers] = useState([]);
   const [_PendingInvitation, set_PendingInvitation] = useState([]);
   const [screenFlag, setScreenFlag] = useState(false);
+  const [receiveFlag, setReceiveFlag] = useState(false);
   const [shareStream, setShareStream] = useState("");
   const [isMessenger, setIsMessenger] = useState(false);
   const [handupFlag, setHandupFlag] = useState(false);
@@ -48,29 +49,45 @@ export default function RoomLayer(props) {
   //	Client Input
 
   async function onShareScreen() {
-    console.log("share");
-    const stream = await navigator.mediaDevices.getDisplayMedia({
-      video: {
-        cursor: "always",
-      },
-      audio: {
-        echoCancellation: true,
-        noiseSuppression: true,
-        sampleRate: 44100,
-      },
-    });
+    // console.log("share");
+    // const stream = await navigator.mediaDevices.getDisplayMedia({
+    //   video: {
+    //     cursor: "always",
+    //   },
+    //   audio: {
+    //     echoCancellation: true,
+    //     noiseSuppression: true,
+    //     sampleRate: 44100,
+    //   },
+    // });
     // stream.getVideoTracks()[0].addEventListener("ended", () => {
     //   stopShareScreen();
     // });
+    const stream = await props.onChangeScreenStatus(!props.screen);
+    if (!props.screen) {
+      PeersConnection.forEach((peerConnection) => {
+        sendStreamsToPeers(peerConnection.PC, stream);
+      });
+    }
     setScreenFlag(true);
     setShareStream(stream);
-    let video = document.getElementById("shareScreen");
-    video.srcObject = stream;
-    video.play();
+    sendMessageToEveryoneInTheRoom(
+      JSON.stringify({
+        type: "screenStateChange",
+        _id: props.selfId,
+        screen: !props.screen,
+      })
+    );
+    // let video = document.getElementById("shareScreen");
+    // video.srcObject = stream;
+    // video.play();
   }
 
   useEffect(() => {
     if (shareStream) {
+      let video = document.getElementById("shareScreen");
+      video.srcObject = shareStream;
+      // video.play();
       shareStream.getVideoTracks()[0].addEventListener("ended", () => {
         stopShareScreen();
       });
@@ -79,7 +96,7 @@ export default function RoomLayer(props) {
 
   function toggleHandup() {
     setHandupFlag(!handupFlag);
-    console.log(handupFlag);
+    // console.log(handupFlag);
     sendMessageToEveryoneInTheRoom(
       JSON.stringify({
         type: "handUpStateChange",
@@ -136,7 +153,7 @@ export default function RoomLayer(props) {
 
   function toggleAudio() {
     props.onChangeAudioStatus(!props.audio).then((newStream) => {
-      console.log("Update Audio", newStream);
+      // console.log("Update Audio", newStream);
     });
 
     // Send message to inform everyon than I turn off/on my audioChannel
@@ -173,11 +190,20 @@ export default function RoomLayer(props) {
     );
   }
 
+  function chooseStream(_id) {
+    _Peers.forEach((peer) => {
+      if (peer._id === _id) {
+        setShareStream(peer.stream);
+        setReceiveFlag(true);
+      }
+    });
+  }
+
   ///////////////////////////////////////////////////////////////////////////////
   //	DataChanel
 
   function DConOpen(dc, peerId) {
-    console.log(`DC_${peerId}:\tConnected`);
+    // console.log(`DC_${peerId}:\tConnected`);
 
     // Send your audio/video status
     dc.send(
@@ -208,18 +234,25 @@ export default function RoomLayer(props) {
         data: { message: message, user: props.selfName },
       })
     );
+    dc.send(
+      JSON.stringify({
+        type: "screenStateChange",
+        _id: props.selfId,
+        screen: !props.screen,
+      })
+    );
   }
 
   function DConMessage(peerId, msg) {
     // Parse JSON msg
     try {
       msg = JSON.parse(msg.data);
-      console.log(msg);
+      // console.log(msg);
     } catch (err) {
       console.error(`DC_${peerId}:\tError: ${err}`);
       return;
     }
-    console.log(`DC_${peerId}:\tMessage Receveived`, msg.type);
+    // console.log(`DC_${peerId}:\tMessage Receveived`, msg.type);
 
     const peerIndex = Utils.getPeerIndexFrom_Id(msg._id, _Peers);
     if (peerIndex === -1) {
@@ -232,7 +265,7 @@ export default function RoomLayer(props) {
       // Update Audio status
       const peers = [..._Peers];
       peers[peerIndex].audio = msg.audio;
-      console.log(peers);
+      // console.log(peers);
       set_Peers(peers);
     } else if (msg.type === "videoStateChange") {
       // Update Video status
@@ -240,13 +273,13 @@ export default function RoomLayer(props) {
       peers[peerIndex].video = msg.video;
       set_Peers(peers);
     } else if (msg.type === "handUpStateChange") {
-      console.log(msg.handUp);
+      // console.log(msg.handUp);
       const peers = [..._Peers];
       peers[peerIndex].handUp = msg.handUp;
-      console.log(peers);
+      // console.log(peers);
       set_Peers(peers);
     } else if (msg.type === "sendMessage") {
-      console.log(msg);
+      // console.log(msg);
       messengerListReducer({
         type: "addMessage",
         payload: {
@@ -255,6 +288,8 @@ export default function RoomLayer(props) {
           time: Date.now(),
         },
       });
+    } else if (msg.type === "screenStateChange") {
+      chooseStream(msg._id);
     }
   }
 
@@ -294,12 +329,18 @@ export default function RoomLayer(props) {
   function sendStreamsToPeers(connection, stream) {
     // This function isn't efficient but there is no bug for simple usage.
     // (My guess is that it my crash when restarting the camera too much like 100 times or more)
+
     if (connection) {
       // remove all tracks
       const senders = connection.getSenders();
+      console.log("stream", stream);
       senders.forEach((sender) => connection.removeTrack(sender));
       // Add all new track
-      stream.getTracks().forEach((track) => connection.addTrack(track, stream));
+      stream.getTracks().forEach((track) => {
+        // console.log("track & stream", track, stream);
+        connection.addTrack(track, stream);
+      });
+      console.log("share", connection);
     } else {
       console.error(
         "Try to update peers with the new stream but peerConnection was not establish"
@@ -320,17 +361,22 @@ export default function RoomLayer(props) {
       type: "IceCandidate",
       iceCandidate: e.candidate,
     };
-    console.log(`WebRTC:\tSend ICE to Client_${peerId}`);
+    // console.log(`WebRTC:\tSend ICE to Client_${peerId}`);
     window.SignalingSocket.send(JSON.stringify(descriptor));
   }
 
   function onTrack(event, peerId) {
     // When you receive streams from the peer
 
-    console.log(`WebRTC:\tYou received STREAM from Client_${peerId}`);
+    // console.log(`WebRTC:\tYou received STREAM from Client_${peerId}`);
+    console.log("event stream", event.streams);
     const video = document.getElementById(`VideoStream_${peerId}`);
+    const screen = document.getElementById("shareScreen");
     if (video) {
+      console.log("camera");
       video.srcObject = event.streams[0];
+    } else if (screen) {
+      screen.srcObject = event.streams[0];
     } else {
       console.error(
         "WebRTC:\tStream received was not able to be apply to the peer video"
@@ -341,27 +387,44 @@ export default function RoomLayer(props) {
     PeersConnection.set(peerId, connection);
   }
 
-  function onNegotiationNeeded(connection, peerId) {
-    if (window.localStream) {
+  async function onNegotiationNeeded(connection, peerId) {
+    console.log("event target", connection);
+    if (screenFlag) {
+      console.log("flag", shareStream);
+      sendStreamsToPeers(connection, shareStream);
+    } else if (window.localStream) {
       // Send your streams to the peer (Audio/Video)
       sendStreamsToPeers(connection, window.localStream);
     }
 
     // Create/Set your own local description
-    connection.createOffer().then((offer) => {
-      connection
-        .setLocalDescription(offer)
-        .then(() => console.log(`WebRTC:\tLocal description set`));
+    // connection.createOffer().then((offer) => {
+    //   connection
+    //     .setLocalDescription(offer)
+    //     .then(() => console.log(`WebRTC:\tLocal description set`));
 
-      // send local description to the peer
+    //   // send local description to the peer
+    //   let descriptor = {
+    //     to: peerId,
+    //     type: "Offer",
+    //     offer: offer,
+    //   };
+    //   // console.log(`WebRTC:\tSend Offer to Client_${peerId}`);
+    //   window.SignalingSocket.send(JSON.stringify(descriptor));
+    // });
+    try {
+      const offer = await connection.createOffer();
+      await connection.setLocalDescription(offer);
       let descriptor = {
         to: peerId,
         type: "Offer",
         offer: offer,
       };
-      console.log(`WebRTC:\tSend Offer to Client_${peerId}`);
+      console.log("offer", offer);
       window.SignalingSocket.send(JSON.stringify(descriptor));
-    });
+    } catch (e) {
+      console.log(e);
+    }
   }
 
   function setRemoteThenLocalDescription(connection, offer, peerId) {
@@ -386,18 +449,21 @@ export default function RoomLayer(props) {
         type: "Answer",
         answer: answer,
       };
-      console.log(`WebRTC:\tSend Answer to Client_${peerId}`);
+      // console.log(`WebRTC:\tSend Answer to Client_${peerId}`);
       window.SignalingSocket.send(JSON.stringify(descriptor));
     });
   }
 
   // When a new client wish to connect with you
   function sendAnswerBasedOffer(offer, peerId) {
-    console.log(`WebRTC:\t>>> New peer connection with: Client_${peerId} <<<`);
+    // console.log(`WebRTC:\t>>> New peer connection with: Client_${peerId} <<<`);
 
     let newConnection = new RTCPeerConnection(props.rtcOptions);
     newConnection.onicecandidate = (event) => onIceCandidate(event, peerId);
-    newConnection.ontrack = (event) => onTrack(event, peerId);
+    newConnection.ontrack = (event) => {
+      console.log("event", event);
+      onTrack(event, peerId);
+    };
     newConnection.onnegotiationneeded = (event) =>
       onNegotiationNeeded(event.currentTarget, peerId);
 
@@ -423,13 +489,16 @@ export default function RoomLayer(props) {
 
   // when you ask a peer to be connected with
   function createNewPeerConnection(peerId) {
-    console.log(
-      `WebRTC:\t>>> Create peer connection with: Client_${peerId} <<<`
-    );
+    // console.log(
+    //   `WebRTC:\t>>> Create peer connection with: Client_${peerId} <<<`
+    // );
 
     let newConnection = new RTCPeerConnection(props.rtcOptions);
     newConnection.onicecandidate = (event) => onIceCandidate(event, peerId);
-    newConnection.ontrack = (event) => onTrack(event, peerId);
+    newConnection.ontrack = (event) => {
+      console.log("create event", event);
+      onTrack(event, peerId);
+    };
     newConnection.onnegotiationneeded = (event) =>
       onNegotiationNeeded(event.currentTarget, peerId);
 
@@ -479,7 +548,7 @@ export default function RoomLayer(props) {
 
     if (msg.type === "Answer") {
       // someone reponce to your offer with is own local description
-      console.log(`WebRTC:\tClient_${msg.from}:\tAnswer received`);
+      // console.log(`WebRTC:\tClient_${msg.from}:\tAnswer received`);
 
       // set the local description of the remote peer
       connection.PC.setRemoteDescription(msg.answer).then(() =>
@@ -494,7 +563,7 @@ export default function RoomLayer(props) {
       }
 
       // You received a new ICE from one of your remote peers
-      console.log(`WebRTC:\tClient_${msg.from}:\tICE received`);
+      // console.log(`WebRTC:\tClient_${msg.from}:\tICE received`);
 
       // /!\ It's actually very important to add ICE because they change the local description of the remote peer
       // /!\ and if you don't do it, your peer will have a local description who isn't matching with the one you added with `setRemoteDescription`
@@ -558,7 +627,7 @@ export default function RoomLayer(props) {
       console.error(`Cannot parse message: ${msg.data}\nError: ${err}`);
       return;
     }
-    console.log(`--> SS: ${msg.type}`);
+    // console.log(`--> SS: ${msg.type}`);
 
     if (msg.type === "RoomSetupCallback") {
       // This will initialise the room from your side
@@ -605,7 +674,7 @@ export default function RoomLayer(props) {
       console.log("Someone want to join the room:", msg.from);
 
       if (window.Notification && window.Notification.permission === "granted") {
-        new Notification("Hugo Meet - Joining request", {
+        new Notification("Joining request", {
           body: `${msg.name} ask you for joining the room`,
           icon: NotificationIcon,
           requireInteraction: true,
@@ -617,7 +686,7 @@ export default function RoomLayer(props) {
         { name: msg.name, _id: msg.from },
       ]);
     } else if (msg.type === "sendMsg") {
-      console.log("msg", msg);
+      // console.log("msg", msg);
       if (props.selfId !== msg.from) {
         messengerListReducer({
           type: "addMessage",
@@ -645,7 +714,7 @@ export default function RoomLayer(props) {
   }
 
   function WSonError(event) {
-    console.log(`WS error:`, event);
+    // console.log(`WS error:`, event);
     window.SignalingSocket.close();
   }
 
@@ -697,7 +766,7 @@ export default function RoomLayer(props) {
     11: 4,
   };
 
-  console.log("RoomLayer:\tRefresh");
+  // console.log("RoomLayer:\tRefresh");
   return (
     <div style={{ display: "flex", width: "100%", height: "100%" }}>
       <div className="RoomLayer">
@@ -713,8 +782,12 @@ export default function RoomLayer(props) {
         ))}
         {/* VIDEOS */}
         <div className="video-container">
-          {screenFlag ? (
-            <video className="screen-share-container" id="shareScreen" />
+          {screenFlag || receiveFlag ? (
+            <video
+              className="screen-share-container"
+              id="shareScreen"
+              autoPlay
+            />
           ) : (
             ""
           )}
