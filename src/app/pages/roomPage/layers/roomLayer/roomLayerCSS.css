@@ -36,6 +36,14 @@
   gap: 1%;
 }
 
+.RL-VideoContainer-hidden {
+  margin: 2% 5%;
+  flex: 1;
+
+  display: grid;
+  gap: 1%;
+}
+
 .RL-ToolsBox {
   flex-direction: row;
   justify-content: space-between;
@@ -103,13 +111,26 @@
   flex-direction: row;
   height: 100%;
 }
+.video-total-container {
+  display: flex;
+  flex-direction: column;
+  height: 90%;
+}
 
 .screen-share-container {
   display: flex;
-  width: 50%;
+  height: 60%;
   background-color: #3c4043;
-  margin: 2% 0 2% 5%;
+  margin: 1% 2% 0 2%;
   border-radius: 10px;
+}
+.select-modal {
+  width: 20%;
+  height: 10%;
+  margin: auto;
+  margin-top: 20%;
+  border: #202124;
+  border-radius: 4px;
 }
 
 .Center-Button-LeaveRoom {
@@ -154,5 +175,14 @@
     .icon {
       color: #fff;
     }
+  }
+}
+
+@media (max-width: 500px) {
+  .RL-VideoContainer-hidden {
+    display: none !important;
+  }
+  .messenger-container {
+    width: 100%;
   }
 }

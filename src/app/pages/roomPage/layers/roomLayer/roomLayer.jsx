@@ -18,6 +18,7 @@ import HangUpIcon from "./assets/HandUpIcon.png";
 import NotificationIcon from "./assets/HugoMeetLogo-256x256.png";
 import Messenger from "./components/Messenger/Messenger";
 import MessageListReducer from "../../../../reducer/MessengerListReducer";
+import Modal from "react-modal";
 
 // Components
 import PeerVideo from "./components/peerVideo/peerVideo";
@@ -35,6 +36,7 @@ export default function RoomLayer(props) {
   const [shareStream, setShareStream] = useState("");
   const [isMessenger, setIsMessenger] = useState(false);
   const [handupFlag, setHandupFlag] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   const initialState = [];
   const [messageList, messengerListReducer] = useReducer(
     MessageListReducer,
@@ -47,8 +49,24 @@ export default function RoomLayer(props) {
 
   ///////////////////////////////////////////////////////////////////////////////
   //	Client Input
+  function onShareScreen() {
+    if (receiveFlag) {
+      setIsOpen(true);
+    } else {
+      ShareScreen();
+    }
+  }
 
-  async function onShareScreen() {
+  function onClose() {
+    setIsOpen(false);
+  }
+
+  function onShare() {
+    setIsOpen(false);
+    ShareScreen();
+  }
+
+  async function ShareScreen() {
     // console.log("share");
     // const stream = await navigator.mediaDevices.getDisplayMedia({
     //   video: {
@@ -63,6 +81,7 @@ export default function RoomLayer(props) {
     // stream.getVideoTracks()[0].addEventListener("ended", () => {
     //   stopShareScreen();
     // });
+
     const stream = await props.onChangeScreenStatus(!props.screen);
     if (stream) {
       if (!props.screen) {
@@ -534,6 +553,11 @@ export default function RoomLayer(props) {
     };
   }
 
+  // function createScreenStreamConnection(peerId) {
+  //   let newConnection = new RTCPeerConnection(props.rtcOptions);
+  //   newConnection.onicecandidate;
+  // }
+
   function RTCMessageDispatcher(msg) {
     if (msg.type === "Offer") {
       // somemone new has join the room and send you an offer start a peer connection
@@ -786,212 +810,233 @@ export default function RoomLayer(props) {
 
   // console.log("RoomLayer:\tRefresh");
   return (
-    <div style={{ display: "flex", width: "100%", height: "100%" }}>
-      <div className="RoomLayer">
-        {/* NOTIFICATION */}
-        {_PendingInvitation.map((invitation, index) => (
-          <JoiningNotificationElement
-            key={index}
-            index={index}
-            clientId={invitation._id}
-            name={invitation.name}
-            onResponce={sendJoinRequestResponce}
-          />
-        ))}
-        {/* VIDEOS */}
-        <div className="video-container">
-          {screenFlag || receiveFlag ? (
-            <video
-              className="screen-share-container"
-              id="shareScreen"
-              autoPlay
+    <>
+      <div
+        style={{
+          display: "flex",
+          width: "100%",
+          height: "100%",
+          alignItems: "center",
+        }}
+      >
+        <div className="RoomLayer">
+          {/* NOTIFICATION */}
+          {_PendingInvitation.map((invitation, index) => (
+            <JoiningNotificationElement
+              key={index}
+              index={index}
+              clientId={invitation._id}
+              name={invitation.name}
+              onResponce={sendJoinRequestResponce}
             />
-          ) : (
-            ""
-          )}
-          <div
-            className="RL-VideoContainer"
-            style={{
-              gridTemplateColumns: `${"auto ".repeat(
-                numberOfColumns[_Peers.length]
-              )}`,
-            }}
-          >
-            {_Peers.map((peer, index) =>
-              props.selfId && peer._id === props.selfId ? (
-                <PeerVideo
-                  key={index}
-                  index={index}
-                  id="LocalStream"
-                  stream={window.localStream}
-                  name={peer.name}
-                  audio={props.audio}
-                  video={props.video}
-                  selfName={props.selfName}
-                  handUp={handupFlag}
-                  muted
-                  mirrored
-                >
-                  <video />
-                </PeerVideo>
-              ) : (
-                <PeerVideo
-                  key={index}
-                  index={index}
-                  id={`VideoStream_${peer._id}`}
-                  stream={PeersConnection.get(peer._id)?.stream}
-                  name={peer.name}
-                  audio={peer.audio}
-                  video={peer.video}
-                  handUp={peer.handUp}
-                />
-              )
+          ))}
+          {/* VIDEOS */}
+          <div className="video-total-container">
+            {screenFlag || receiveFlag ? (
+              <video
+                className="screen-share-container"
+                id="shareScreen"
+                autoPlay
+              />
+            ) : (
+              ""
             )}
-          </div>
-        </div>
-
-        {/* BUTTONS UNDER VIDEOS */}
-        <div className="RL-ToolsBox">
-          <div className="RL-TB-Left">
-            <div className="RL-TB-L-RoomId">{roomId}</div>
-          </div>
-          <div className="RL-TB-Center">
-            <div
-              className={`RL-TB-C-Button-${
-                props.audio ? "On" : "Off"
-              } Center-Button-MicroStatus`}
-              onClick={toggleAudio}
-            >
-              {props.audio ? (
-                // Icon micro turn on
-                <svg
-                  className="svg-icon"
-                  focusable="false"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                >
-                  <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"></path>
-                  <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"></path>
-                </svg>
-              ) : (
-                // Icon micro turn off
-                <svg
-                  className="svg-icon"
-                  focusable="false"
-                  width="24px"
-                  height="24px"
-                  viewBox="0 0 24 24"
-                >
-                  <path d="M0 0h24v24H0zm0 0h24v24H0z" fill="none"></path>
-                  <path d="M19 11h-1.7c0 .74-.16 1.43-.43 2.05l1.23 1.23c.56-.98.9-2.09.9-3.28zm-4.02.17c0-.06.02-.11.02-.17V5c0-1.66-1.34-3-3-3S9 3.34 9 5v.18l5.98 5.99zM4.27 3L3 4.27l6.01 6.01V11c0 1.66 1.33 3 2.99 3 .22 0 .44-.03.65-.08l1.66 1.66c-.71.33-1.5.52-2.31.52-2.76 0-5.3-2.1-5.3-5.1H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c.91-.13 1.77-.45 2.54-.9L19.73 21 21 19.73 4.27 3z"></path>
-                </svg>
-              )}
-            </div>
-            <div
-              className={`RL-TB-C-Button-${
-                props.video ? "On" : "Off"
-              } Center-Button-CameraStatus`}
-              onClick={toggleVideo}
-            >
-              {props.video ? (
-                // Icon camera turn on
-                <svg
-                  className="svg-icon"
-                  focusable="false"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                >
-                  <path d="M18 10.48V6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2v-4.48l4 3.98v-11l-4 3.98zm-2-.79V18H4V6h12v3.69z"></path>
-                </svg>
-              ) : (
-                // Icon camera turn off
-                <svg
-                  className="svg-icon"
-                  focusable="false"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                >
-                  <path d="M18 10.48V6c0-1.1-.9-2-2-2H6.83l2 2H16v7.17l2 2v-1.65l4 3.98v-11l-4 3.98zM16 16L6 6 4 4 2.81 2.81 1.39 4.22l.85.85C2.09 5.35 2 5.66 2 6v12c0 1.1.9 2 2 2h12c.34 0 .65-.09.93-.24l2.85 2.85 1.41-1.41L18 18l-2-2zM4 18V6.83L15.17 18H4z"></path>
-                </svg>
-              )}
-            </div>
-            <div className="icon-block" onClick={toggleHandup}>
-              <svg
-                className="svg-icon"
-                focusable="false"
-                width="24"
-                height="24"
-                // viewBox="0 0 24 24"
-                viewBox="0 0 24 24"
+            <div className="video-container">
+              <div
+                className={
+                  isMessenger ? "RL-VideoContainer-hidden" : "RL-VideoContainer"
+                }
+                style={{
+                  gridTemplateColumns: `${"auto ".repeat(
+                    numberOfColumns[_Peers.length]
+                  )}`,
+                }}
               >
-                <path
-                  d="M21,7c0-1.38-1.12-2.5-2.5-2.5c-0.17,0-0.34,0.02-0.5,0.05V4c0-1.38-1.12-2.5-2.5-2.5c-0.23,0-0.46,0.03-0.67,0.09
+                {_Peers.map((peer, index) =>
+                  props.selfId && peer._id === props.selfId ? (
+                    <PeerVideo
+                      key={index}
+                      index={index}
+                      id="LocalStream"
+                      stream={window.localStream}
+                      name={peer.name}
+                      audio={props.audio}
+                      video={props.video}
+                      selfName={props.selfName}
+                      handUp={handupFlag}
+                      muted
+                      mirrored
+                    >
+                      <video />
+                    </PeerVideo>
+                  ) : (
+                    <PeerVideo
+                      key={index}
+                      index={index}
+                      id={`VideoStream_${peer._id}`}
+                      stream={PeersConnection.get(peer._id)?.stream}
+                      name={peer.name}
+                      audio={peer.audio}
+                      video={peer.video}
+                      handUp={peer.handUp}
+                    />
+                  )
+                )}
+              </div>
+              {isMessenger ? (
+                <Messenger
+                  setIsMessenger={setIsMessenger}
+                  sendMsg={sendMsg}
+                  messageList={messageList}
+                />
+              ) : (
+                ""
+              )}
+            </div>
+          </div>
+
+          {/* BUTTONS UNDER VIDEOS */}
+          <div className="RL-ToolsBox">
+            <div className="RL-TB-Left">
+              <div className="RL-TB-L-RoomId">{roomId}</div>
+            </div>
+            <div className="RL-TB-Center">
+              <div
+                className={`RL-TB-C-Button-${
+                  props.audio ? "On" : "Off"
+                } Center-Button-MicroStatus`}
+                onClick={toggleAudio}
+              >
+                {props.audio ? (
+                  // Icon micro turn on
+                  <svg
+                    className="svg-icon"
+                    focusable="false"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                  >
+                    <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"></path>
+                    <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"></path>
+                  </svg>
+                ) : (
+                  // Icon micro turn off
+                  <svg
+                    className="svg-icon"
+                    focusable="false"
+                    width="24px"
+                    height="24px"
+                    viewBox="0 0 24 24"
+                  >
+                    <path d="M0 0h24v24H0zm0 0h24v24H0z" fill="none"></path>
+                    <path d="M19 11h-1.7c0 .74-.16 1.43-.43 2.05l1.23 1.23c.56-.98.9-2.09.9-3.28zm-4.02.17c0-.06.02-.11.02-.17V5c0-1.66-1.34-3-3-3S9 3.34 9 5v.18l5.98 5.99zM4.27 3L3 4.27l6.01 6.01V11c0 1.66 1.33 3 2.99 3 .22 0 .44-.03.65-.08l1.66 1.66c-.71.33-1.5.52-2.31.52-2.76 0-5.3-2.1-5.3-5.1H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c.91-.13 1.77-.45 2.54-.9L19.73 21 21 19.73 4.27 3z"></path>
+                  </svg>
+                )}
+              </div>
+              <div
+                className={`RL-TB-C-Button-${
+                  props.video ? "On" : "Off"
+                } Center-Button-CameraStatus`}
+                onClick={toggleVideo}
+              >
+                {props.video ? (
+                  // Icon camera turn on
+                  <svg
+                    className="svg-icon"
+                    focusable="false"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                  >
+                    <path d="M18 10.48V6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2v-4.48l4 3.98v-11l-4 3.98zm-2-.79V18H4V6h12v3.69z"></path>
+                  </svg>
+                ) : (
+                  // Icon camera turn off
+                  <svg
+                    className="svg-icon"
+                    focusable="false"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                  >
+                    <path d="M18 10.48V6c0-1.1-.9-2-2-2H6.83l2 2H16v7.17l2 2v-1.65l4 3.98v-11l-4 3.98zM16 16L6 6 4 4 2.81 2.81 1.39 4.22l.85.85C2.09 5.35 2 5.66 2 6v12c0 1.1.9 2 2 2h12c.34 0 .65-.09.93-.24l2.85 2.85 1.41-1.41L18 18l-2-2zM4 18V6.83L15.17 18H4z"></path>
+                  </svg>
+                )}
+              </div>
+              <div className="icon-block" onClick={toggleHandup}>
+                <svg
+                  className="svg-icon"
+                  focusable="false"
+                  width="24"
+                  height="24"
+                  // viewBox="0 0 24 24"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M21,7c0-1.38-1.12-2.5-2.5-2.5c-0.17,0-0.34,0.02-0.5,0.05V4c0-1.38-1.12-2.5-2.5-2.5c-0.23,0-0.46,0.03-0.67,0.09
             C14.46,0.66,13.56,0,12.5,0c-1.23,0-2.25,0.89-2.46,2.06C9.87,2.02,9.69,2,9.5,2C8.12,2,7,3.12,7,4.5v5.89
             c-0.34-0.31-0.76-0.54-1.22-0.66L5.01,9.52c-0.83-0.23-1.7,0.09-2.19,0.83c-0.38,0.57-0.4,1.31-0.15,1.95l2.56,6.43
             C6.49,21.91,9.57,24,13,24h0c4.42,0,8-3.58,8-8V7z M19,16c0,3.31-2.69,6-6,6h0c-2.61,0-4.95-1.59-5.91-4.01l-2.6-6.54l0.53,0.14
             c0.46,0.12,0.83,0.46,1,0.9L7,15h2V4.5C9,4.22,9.22,4,9.5,4S10,4.22,10,4.5V12h2V2.5C12,2.22,12.22,2,12.5,2S13,2.22,13,2.5V12h2V4
             c0-0.28,0.22-0.5,0.5-0.5S16,3.72,16,4v8h2V7c0-0.28,0.22-0.5,0.5-0.5S19,6.72,19,7L19,16z"
-                />
-              </svg>
-            </div>
-            <div className="icon-block" onClick={toggleMessenger}>
-              <svg
-                className="svg-icon"
-                focusable="false"
-                width="24"
-                height="24"
-                viewBox="0 0 560 512"
-              >
-                <path d="M448 0H64C28.7 0 0 28.7 0 64v288c0 35.3 28.7 64 64 64h96v84c0 9.8 11.2 15.5 19.1 9.7L304 416h144c35.3 0 64-28.7 64-64V64c0-35.3-28.7-64-64-64z" />
-                {/* <path d="M2 21l-2-2v-14c0-1.1 0.9-2 2-2h18c1.1 0 2 0.9 2 2v14l-2 2h-18zM18 6h-12c-0.55 0-1 0.45-1 1v8c0 0.55 0.45 1 1 1h12c0.55 0 1-0.45 1-1v-8c0-0.55-0.45-1-1-1zM17 10h-10v-2h10v2zM17 14h-10v-2h10v2zM17 18h-10v-2h10v2z"></path> */}
-              </svg>
-            </div>
-            {screenFlag ? (
-              <div className="icon-block" onClick={stopShareScreen}>
-                <svg
-                  className="svg-icon-toggle"
-                  focusable="false"
-                  width="24"
-                  height="24"
-                  // viewBox="0 0 24 24"
-                  viewBox="0 0 600 528"
-                >
-                  <path d="M528 0H48C21.5 0 0 21.5 0 48v320c0 26.5 21.5 48 48 48h192l-16 48h-72c-13.3 0-24 10.7-24 24s10.7 24 24 24h272c13.3 0 24-10.7 24-24s-10.7-24-24-24h-72l-16-48h192c26.5 0 48-21.5 48-48V48c0-26.5-21.5-48-48-48zm-16 352H64V64h448v288z"></path>
+                  />
                 </svg>
               </div>
-            ) : (
-              <div className="icon-block" onClick={onShareScreen}>
+              <div className="icon-block" onClick={toggleMessenger}>
                 <svg
                   className="svg-icon"
                   focusable="false"
                   width="24"
                   height="24"
-                  // viewBox="0 0 24 24"
-                  viewBox="0 0 600 528"
+                  viewBox="0 0 560 512"
                 >
-                  <path d="M528 0H48C21.5 0 0 21.5 0 48v320c0 26.5 21.5 48 48 48h192l-16 48h-72c-13.3 0-24 10.7-24 24s10.7 24 24 24h272c13.3 0 24-10.7 24-24s-10.7-24-24-24h-72l-16-48h192c26.5 0 48-21.5 48-48V48c0-26.5-21.5-48-48-48zm-16 352H64V64h448v288z"></path>
+                  <path d="M448 0H64C28.7 0 0 28.7 0 64v288c0 35.3 28.7 64 64 64h96v84c0 9.8 11.2 15.5 19.1 9.7L304 416h144c35.3 0 64-28.7 64-64V64c0-35.3-28.7-64-64-64z" />
+                  {/* <path d="M2 21l-2-2v-14c0-1.1 0.9-2 2-2h18c1.1 0 2 0.9 2 2v14l-2 2h-18zM18 6h-12c-0.55 0-1 0.45-1 1v8c0 0.55 0.45 1 1 1h12c0.55 0 1-0.45 1-1v-8c0-0.55-0.45-1-1-1zM17 10h-10v-2h10v2zM17 14h-10v-2h10v2zM17 18h-10v-2h10v2z"></path> */}
                 </svg>
               </div>
-            )}
-            <div
-              className={`RL-TB-C-Button-Off Center-Button-LeaveRoom`}
-              onClick={handUpCall}
-            >
-              <img
-                className="RL-TB-C-B-CBL-Img"
-                alt="Leave the call"
-                src={HangUpIcon}
-              />
+              {screenFlag ? (
+                <div className="icon-block" onClick={stopShareScreen}>
+                  <svg
+                    className="svg-icon-toggle"
+                    focusable="false"
+                    width="24"
+                    height="24"
+                    // viewBox="0 0 24 24"
+                    viewBox="0 0 600 528"
+                  >
+                    <path d="M528 0H48C21.5 0 0 21.5 0 48v320c0 26.5 21.5 48 48 48h192l-16 48h-72c-13.3 0-24 10.7-24 24s10.7 24 24 24h272c13.3 0 24-10.7 24-24s-10.7-24-24-24h-72l-16-48h192c26.5 0 48-21.5 48-48V48c0-26.5-21.5-48-48-48zm-16 352H64V64h448v288z"></path>
+                  </svg>
+                </div>
+              ) : (
+                <div className="icon-block" onClick={onShareScreen}>
+                  <svg
+                    className="svg-icon"
+                    focusable="false"
+                    width="24"
+                    height="24"
+                    // viewBox="0 0 24 24"
+                    viewBox="0 0 600 528"
+                  >
+                    <path d="M528 0H48C21.5 0 0 21.5 0 48v320c0 26.5 21.5 48 48 48h192l-16 48h-72c-13.3 0-24 10.7-24 24s10.7 24 24 24h272c13.3 0 24-10.7 24-24s-10.7-24-24-24h-72l-16-48h192c26.5 0 48-21.5 48-48V48c0-26.5-21.5-48-48-48zm-16 352H64V64h448v288z"></path>
+                  </svg>
+                </div>
+              )}
+              <div
+                className={`RL-TB-C-Button-Off Center-Button-LeaveRoom`}
+                onClick={handUpCall}
+              >
+                <img
+                  className="RL-TB-C-B-CBL-Img"
+                  alt="Leave the call"
+                  src={HangUpIcon}
+                />
+              </div>
             </div>
+            <div className="RL-TB-Right">{/* Nothing Yet */}</div>
           </div>
-          <div className="RL-TB-Right">{/* Nothing Yet */}</div>
         </div>
-      </div>
-      <div className="messege-container">
-        {isMessenger ? (
+        {/* <div className="messege-container"> */}
+        {/* {isMessenger ? (
           <Messenger
             setIsMessenger={setIsMessenger}
             sendMsg={sendMsg}
@@ -999,8 +1044,31 @@ export default function RoomLayer(props) {
           />
         ) : (
           ""
-        )}
+        )} */}
+        {/* </div> */}
       </div>
-    </div>
+
+      <Modal isOpen={isOpen} className="select-modal">
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            flexDirection: "column",
+            background: "white",
+            border: "black",
+            borderRadius: "4px",
+          }}
+        >
+          <p>
+            Someone else is sharing their screen. <br />
+            Would you like to share your screen?
+          </p>
+          <div style={{ display: "flex", flexDirection: "row" }}>
+            <button onClick={onShare}>YES</button>&nbsp;
+            <button onClick={onClose}>NO</button>
+          </div>
+        </div>
+      </Modal>
+    </>
   );
 }

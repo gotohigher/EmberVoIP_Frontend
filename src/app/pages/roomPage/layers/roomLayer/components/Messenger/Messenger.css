@@ -3,7 +3,7 @@
   top: 0;
   right: 0;
   background: #fff;
-  height: calc(100vh - 90px);
+  height: calc(100vh - 125px);
   width: 350px;
   box-sizing: border-box;
   display: flex;
@@ -15,6 +15,7 @@
     align-items: center;
     justify-content: space-between;
     margin: 10px 0;
+    color: black;
     h3 {
       margin: 0;
       font-weight: 400;
@@ -51,6 +52,7 @@
     padding: 20px;
     flex: 1;
     overflow-y: scroll;
+    color: black;
     .chat-block {
       margin-bottom: 30px;
       .sender {
