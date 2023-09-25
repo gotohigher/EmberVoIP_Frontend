@@ -494,7 +494,7 @@ export default function RoomLayer(props) {
   // When a new client wish to connect with you
   function sendAnswerBasedOffer(offer, peerId) {
     // console.log(`WebRTC:\t>>> New peer connection with: Client_${peerId} <<<`);
-
+    console.log("send answer", props.rtcOptions);
     let newConnection = new RTCPeerConnection(props.rtcOptions);
     newConnection.onicecandidate = (event) => onIceCandidate(event, peerId);
     newConnection.ontrack = (event) => {
@@ -529,7 +529,7 @@ export default function RoomLayer(props) {
     // console.log(
     //   `WebRTC:\t>>> Create peer connection with: Client_${peerId} <<<`
     // );
-
+    console.log("create", props.rtcOptions);
     let newConnection = new RTCPeerConnection(props.rtcOptions);
     newConnection.onicecandidate = (event) => onIceCandidate(event, peerId);
     newConnection.ontrack = (event) => {
@@ -552,11 +552,6 @@ export default function RoomLayer(props) {
       DC: dataChannel,
     };
   }
-
-  // function createScreenStreamConnection(peerId) {
-  //   let newConnection = new RTCPeerConnection(props.rtcOptions);
-  //   newConnection.onicecandidate;
-  // }
 
   function RTCMessageDispatcher(msg) {
     if (msg.type === "Offer") {
