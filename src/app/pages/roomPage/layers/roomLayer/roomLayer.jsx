@@ -496,6 +496,7 @@ export default function RoomLayer(props) {
     // console.log(`WebRTC:\t>>> New peer connection with: Client_${peerId} <<<`);
     console.log("send answer", props.rtcOptions);
     let newConnection = new RTCPeerConnection(props.rtcOptions);
+    console.log(newConnection);
     newConnection.onicecandidate = (event) => onIceCandidate(event, peerId);
     newConnection.ontrack = (event) => {
       console.log("event", event);
