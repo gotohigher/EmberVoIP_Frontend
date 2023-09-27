@@ -61,7 +61,7 @@ const Login = () => {
         <h1>Sign In</h1>
         <div>
           <GoogleLogin
-            clientId="707788443358-u05p46nssla3l8tmn58tpo9r5sommgks.apps.googleusercontent.com"
+            clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}
             buttonText="Login with Google"
             onSuccess={responseGoogle}
             onFailure={responseFail}
