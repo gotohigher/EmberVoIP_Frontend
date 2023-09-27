@@ -1,13 +1,13 @@
 import { useState } from "react";
 import moment from "moment";
 import "./Messenger.css";
-// import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-// import {
-//   faTimes,
-//   faUserFriends,
-//   faCommentAlt,
-//   faPaperPlane,
-// } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faTimes,
+  faUserFriends,
+  faCommentAlt,
+  faPaperPlane,
+} from "@fortawesome/free-solid-svg-icons";
 
 const Messenger = ({ setIsMessenger, sendMsg, messageList }) => {
   const [msg, setMsg] = useState("");
@@ -21,33 +21,32 @@ const Messenger = ({ setIsMessenger, sendMsg, messageList }) => {
 
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
-      if (!msg) return;
-      sendMsg(msg);
-      setMsg("");
+      handleSendMsg();
     }
   };
 
-  // const handleSendMsg = () => {
-  //   sendMsg(msg);
-  //   setMsg("");
-  // };
+  const handleSendMsg = () => {
+    if (!msg) return;
+    sendMsg(msg);
+    setMsg("");
+  };
 
   return (
     <div className="messenger-container">
       <div className="messenger-header">
         <h3>Meeting details</h3>
-        {/* <FontAwesomeIcon
+        <FontAwesomeIcon
           className="icon"
           icon={faTimes}
           onClick={() => {
             setIsMessenger(false);
           }}
-        /> */}
+        />
       </div>
 
       <div className="messenger-header-tabs">
         <div className="tab active">
-          {/* <FontAwesomeIcon className="icon" icon={faCommentAlt} /> */}
+          <FontAwesomeIcon className="icon" icon={faCommentAlt} />
           <p>Chat</p>
         </div>
       </div>
@@ -71,11 +70,11 @@ const Messenger = ({ setIsMessenger, sendMsg, messageList }) => {
           onChange={(e) => handleChangeMsg(e)}
           onKeyDown={(e) => handleKeyDown(e)}
         />
-        {/* <FontAwesomeIcon
+        <FontAwesomeIcon
           className="icon"
           icon={faPaperPlane}
           onClick={handleSendMsg}
-        /> */}
+        />
       </div>
     </div>
   );
