@@ -16,6 +16,7 @@ import { Switch, Route, Redirect, useHistory } from "react-router-dom";
 import LandingPage from "./pages/landingPage/landingPage";
 import RoomPage from "./pages/roomPage/roomPage";
 import Utils from "./utils/utils";
+import Login from "./pages/login/login";
 
 export default function App() {
   const history = useHistory();
@@ -50,9 +51,10 @@ export default function App() {
 
   return (
     <Switch>
-      <Route exact path="/" component={LandingPage} />
+      <Route exact path="/landing" component={LandingPage} />
+      <Route exact path="/" component={Login} />
       <Route exact path="/room/:roomId" component={RoomPage} />
-      <Route render={() => <Redirect to="/" />} />
+      <Route render={() => <Redirect to="/landing" />} />
     </Switch>
   );
 }
