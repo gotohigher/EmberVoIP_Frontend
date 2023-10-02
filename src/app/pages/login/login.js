@@ -1,76 +1,162 @@
-import React from "react";
-import { GoogleLogin } from "react-google-login";
+import React, { useState } from "react";
+import { makeStyles } from "@material-ui/core/styles";
+import {
+  Typography,
+  TextField,
+  Button,
+  Card,
+  CardContent,
+} from "@material-ui/core";
 import { useHistory } from "react-router-dom";
-import styled from "styled-components";
-import logo from "../header/assets/emberlogo.png";
+import axios from "axios";
 
-const Login = () => {
+const useStyles = makeStyles((theme) => ({
+  root: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    height: "100vh",
+  },
+  card: {
+    minWidth: 300,
+  },
+  title: {
+    marginBottom: theme.spacing(3),
+  },
+  form: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+  },
+  textField: {
+    marginBottom: theme.spacing(2),
+  },
+  loginButton: {
+    marginTop: theme.spacing(2),
+  },
+}));
+
+const LoginPage = () => {
+  const [module, setModule] = useState("");
+  const [ext, setExt] = useState("");
+  const [secret, setSecret] = useState("");
+  const [command, setCommand] = useState("");
+  const [domain, setDomain] = useState("");
+  const classes = useStyles();
   const history = useHistory();
-  const responseGoogle = (response) => {
-    console.log(response);
-    // Here, you can make a check or directly move to the landing page
-    // if (response.profileObj) {
-    history.push("/landing");
-    // }
+
+  const handleModuleChange = (event) => {
+    setModule(event.target.value);
   };
 
-  const responseFail = (response) => {
-    console.log(response);
-    // history.push("/landing");
-    // Here, you can handle errors and display appropriate messages to the user
+  const handleCommandChange = (event) => {
+    setCommand(event.target.value);
+  };
+  const handleDomainChange = (event) => {
+    setDomain(event.target.value);
+  };
+  const handleExtChange = (event) => {
+    setExt(event.target.value);
+  };
+  const handleSecretChange = (event) => {
+    setSecret(event.target.value);
   };
 
-  const LoginContainer = styled.div`
-    background-color: #f8f8f8;
-    height: 100vh;
-    display: grid;
-    place-items: center;
-  `;
-
-  const LoginLogoContainer = styled.div`
-    border: 1px solid black;
-    position: relative;
-    background-color: white;
-    padding: 200px;
-    text-align: center;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 3px rgba(0, 0, 0, 0.12);
-    border-radius: 25px;
-    > img {
-      object-fit: contain;
-      height: 100px;
-      margin-bottom: 40px;
-    }
-
-    > button {
-      margin-top: 30px;
-      text-transform: inherit;
-      background-color: #41af8e;
-      color: white;
-      margin: 10px;
-      margin-top: 20px;
-      &:hover {
-        color: black;
-      }
-    }
-  `;
+  const handleLogin = () => {
+    const data = {
+      module: module,
+      secret: secret,
+      command: command,
+      ext: ext,
+      domain: domain,
+    };
+    let st_data = JSON.stringify(data);
+    const url = "https://west01.embervoip.net/customer/api/";
+    const x_auth_token = "BccLbuRzHFbkzv0AFEP1yfGSe70fc8kB";
+    const header = {
+      headers: {
+        "x-auth-token": x_auth_token,
+        "Content-Type": "*/*",
+        "Access-Control-Allow-Origin": "*",
+        // "Access-Control-Allow-Methods": "*",
+        // "Access-Control-Allow-Headers": "'Content-Type, X-Auth-Token'",
+        "Access-Control-Allow-Headers": "*",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "*",
+      },
+    };
+    axios
+      .post("/customer/api/", data, header)
+      .then((response) => {
+        console.log(response);
+        if (response.data.status) {
+          history.push("/landing");
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+    // Perform login authentication here
+    // You can redirect to another page upon successful login using history.push('/dashboard');
+    //
+  };
 
   return (
-    <LoginContainer>
-      <LoginLogoContainer>
-        <img src={logo} alt="embervoip" />
-        <h1>Sign In</h1>
-        <div>
-          <GoogleLogin
-            clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}
-            buttonText="Login with Google"
-            onSuccess={responseGoogle}
-            onFailure={responseFail}
-            cookiePolicy={"single_host_origin"}
-          />
-        </div>
-      </LoginLogoContainer>
-    </LoginContainer>
+    <div className={classes.root}>
+      <Card className={classes.card}>
+        <CardContent>
+          <Typography variant="h5" component="h2" className={classes.title}>
+            Login
+          </Typography>
+          <form className={classes.form}>
+            <TextField
+              label="module"
+              variant="outlined"
+              className={classes.textField}
+              value={module}
+              onChange={handleModuleChange}
+            />
+            <TextField
+              label="command"
+              variant="outlined"
+              className={classes.textField}
+              value={command}
+              onChange={handleCommandChange}
+            />
+            <TextField
+              label="ext"
+              variant="outlined"
+              className={classes.textField}
+              value={ext}
+              onChange={handleExtChange}
+            />
+            <TextField
+              label="secret"
+              variant="outlined"
+              className={classes.textField}
+              value={secret}
+              onChange={handleSecretChange}
+            />
+            <TextField
+              label="domain"
+              variant="outlined"
+              className={classes.textField}
+              value={domain}
+              onChange={handleDomainChange}
+            />
+            <Button
+              variant="contained"
+              color="primary"
+              className={classes.loginButton}
+              onClick={handleLogin}
+            >
+              Login
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 
-export default Login;
+export default LoginPage;

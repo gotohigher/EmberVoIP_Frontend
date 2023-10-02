@@ -19,7 +19,7 @@ let ssUrl = url;
 
 if (https) {
   prefix = "https";
-  url = "embervoipback-com.onrender.com";
+  url = "embervoipbackend.onrender.com/";
   ssUrl = `${url}`;
 }
 
