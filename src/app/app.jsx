@@ -51,8 +51,8 @@ export default function App() {
 
   return (
     <Switch>
-      <Route exact path="/" component={LandingPage} />
-      {/* <Route exact path="/" component={Login} /> */}
+      <Route exact path="/landing" component={LandingPage} />
+      <Route exact path="/" component={Login} />
       <Route exact path="/room/:roomId" component={RoomPage} />
       <Route render={() => <Redirect to="/" />} />
     </Switch>
