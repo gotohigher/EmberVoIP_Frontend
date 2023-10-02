@@ -77,7 +77,7 @@ const LoginPage = () => {
       headers: {
         "x-auth-token": x_auth_token,
         "Content-Type": "*/*",
-        "Access-Control-Allow-Origin": "*",
+        // "Access-Control-Allow-Origin": "*",
         // "Access-Control-Allow-Methods": "*",
         // "Access-Control-Allow-Headers": "'Content-Type, X-Auth-Token'",
         "Access-Control-Allow-Headers": "*",
